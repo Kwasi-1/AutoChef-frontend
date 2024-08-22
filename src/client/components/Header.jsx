@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import LoginSignupModal from './LoginSignupModal';
 import BookingHistoryModal from './BookingHistoryModal';
@@ -7,25 +7,34 @@ import LoginSignupButton from './LoginSignUpButton';
 import Button from './BookButton';
 import { Icon } from '@iconify/react';
 import menuItems from '../data/menuItems';
+import LogoutButton from './LogoutButton';
+import ResetPasswordButton from './ResetPasswordButton';
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);  // State for menu toggle
-  const [bgColor, setBgColor] = useState('bg-transparent');  // State for header background color
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);  // State for user dropdown toggle
-  const [isModalOpen, setIsModalOpen] = useState(false);  // State for login/signup modal
-  const [isBookingHistoryModalOpen, setIsBookingHistoryModalOpen] = useState(false);  // State for booking history modal
+  // State management
+  const [isOpen, setIsOpen] = useState(false);  // Menu toggle
+  const [bgColor, setBgColor] = useState('bg-transparent');  // Header background color
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);  // User dropdown toggle
+  const [isModalOpen, setIsModalOpen] = useState(false);  // Login/signup modal toggle
+  const [isBookingHistoryModalOpen, setIsBookingHistoryModalOpen] = useState(false);  // Booking history modal toggle
+  
+  // References for detecting outside clicks
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
-  const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
-  const navigate = useNavigate();
 
-  // Toggle mobile menu visibility
+  // Context and navigation hooks
+  const { isLoggedIn } = useContext(UserContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determine if current page is the booking page
+  const isBooking = location.pathname === '/booking';
+
+  // Toggle the menu visibility
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Change header background color on scroll
-  const handleScroll = () => {
-    setBgColor(window.scrollY > 50 ? 'bg-black' : 'bg-transparent');
-  };
+  // Handle scrolling to change header background color
+  const handleScroll = () => setBgColor(window.scrollY > 50 ? 'bg-black' : 'bg-transparent');
 
   // Attach scroll event listener on mount, detach on unmount
   useEffect(() => {
@@ -35,10 +44,10 @@ const Header = () => {
     };
   }, []);
 
-  // Toggle user dropdown visibility
+  // Toggle the user dropdown visibility
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // Handle clicks outside of dropdown and menu to close them
+  // Handle clicks outside the dropdown or menu to close them
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsDropdownOpen(false);
@@ -56,49 +65,26 @@ const Header = () => {
     };
   }, [isOpen]);
 
-  // Handle user icon click: toggle dropdown or open login/signup modal
+  // Handle user icon click: open dropdown if logged in, otherwise show login/signup modal
   const handleUserIconClick = () => {
     isLoggedIn ? toggleDropdown() : setIsModalOpen(true);
   };
 
-  // Handle user icon click: toggle dropdown or open login/signup modal
+  // Handle cart icon click: open booking history modal if logged in, otherwise show login/signup modal
   const handleCartIconClick = () => {
     isLoggedIn ? openBookingHistoryModal() : setIsModalOpen(true);
   };
 
-  // Close login/signup modal
+  // Modal open/close handlers
   const closeModal = () => setIsModalOpen(false);
-
-  // Close booking history modal
   const closeBookingHistoryModal = () => setIsBookingHistoryModalOpen(false);
-
-  // Open booking history modal
   const openBookingHistoryModal = () => setIsBookingHistoryModalOpen(true);
 
-  // Handle user logout
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/logout', {
-        method: 'POST',
-        credentials: 'include',  // Include cookies with the request
-      });
-
-      if (response.ok) {
-        setIsLoggedIn(false);
-        navigate('/');
-      } else {
-        console.error('Failed to log out');
-      }
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
-
   return (
-    <header className={`${bgColor} text-white px-4 lg:px-16 py-4 fixed top-0 left-0 right-0 z-30 transition-colors duration-300`}>
+    <header className={`text-white ${isBooking ? 'bg-black' : bgColor } px-4 lg:px-16 py-4 fixed top-0 left-0 right-0 z-30 `}>
       <nav className="flex justify-between items-center">
-        {/* Left section: Menu button and welcome message */}
         <div className='flex items-center'>
+          {/* Menu Button */}
           <button onClick={toggleMenu} className="focus:outline-none mr-4 transition duration-300">
             {isOpen ? (
               <Icon icon='ic:round-close' className='h-6 w-6 transition-transform duration-300' />
@@ -109,10 +95,11 @@ const Header = () => {
               </div>
             )}
           </button>
+          {/* Logo/Branding */}
           <Link to='/' className='hidden lg:block'>Welcome to the future of auto repair!</Link>
         </div>
 
-        {/* Mobile menu items */}
+        {/* Menu Items */}
         <ul ref={menuRef} className={`absolute top-full left-0 h-screen bg-black w-4/5 sm:w-3/5 md:w-1/2 lg:w-1/3 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-500 ease-in-out pl-4 lg:pl-16`}>
           {menuItems.map((item, index) => (
             <li key={index}>
@@ -126,10 +113,11 @@ const Header = () => {
           ))}
         </ul>
 
-        {/* Right section: User dropdown, booking button, and logo */}
+        {/* User actions and icons */}
         <div className='flex'>
           <div className='flex items-center'>
             <div className='relative' ref={dropdownRef}>
+              {/* User Icon */}
               <Icon
                 icon='lets-icons:user-light'
                 className='h-6 w-6 md:h-7 md:w-7 mr-2 lg:mr-3 hover:text-[#DE0000] transition-colors duration-300 cursor-pointer'
@@ -137,26 +125,36 @@ const Header = () => {
               />
               {isDropdownOpen && (
                 <div className='absolute right-0 mt-2 w-48 bg-black bg-opacity-85 border border-gray-500 p-2 text-white rounded-lg shadow-lg transition-all duration-300'>
-                  <button onClick={openBookingHistoryModal} className='flex items-center w-full text-left px-3 py-2 rounded-md hover:bg-stone-800 transition-colors duration-300'>
+                  <button onClick={openBookingHistoryModal} className='flex items-center w-full text-left px-3 py-2 rounded-md border border-black hover:border-gray-400 active:text-[#DE0000] active:border-[#DE0000] transition duration-300'>
                     <Icon icon="mdi-light:cart" className="w-4 h-4 mr-3" />
                     Booking History
                   </button>
-                  <button onClick={handleLogout} className='flex items-center w-full text-left px-3 py-2 rounded-md text-red-600 hover:bg-stone-800 transition-colors duration-300'>
-                    <Icon icon="ic:round-logout" className="w-4 h-4 mr-3" />
-                    Logout
-                  </button>
+                  {/* Password Reset Button */}
+                  <ResetPasswordButton
+                    // onClick={handleReset} // Pass the reset function
+                    text="Reset Password"
+                    styleProp="w-full text-left px-3 py-2 rounded-md border border-black hover:border-gray-400 active:text-[#DE0000] active:border-[#DE0000] transition duration-300"
+                  />
+                  {/* Logout Button */}
+                  <LogoutButton 
+                    styleProp="w-full text-left px-3 py-2 rounded-md border border-black hover:border-gray-400 active:text-[#DE0000] active:border-[#DE0000] transition duration-300"
+                    iconProp="w-4 h-4 mr-3"
+                  /> 
                 </div>
               )}
             </div>
+            {/* Cart Icon */}
             <Icon 
               icon='mdi-light:cart' 
               className='h-6 w-6 md:h-7 md:w-7 mr-2 lg:mr-3 hover:text-[#DE0000] transition-colors duration-300 cursor-pointer'
               onClick={handleCartIconClick}
             />
+            {/* Book Now Button */}
             <Button
               styleProp='hidden md:block pr-4 hover:text-[#DE0000] transition-colors duration-300'
               textProp='Book Now'
             />           
+            {/* Conditional rendering based on login status */}
             {isLoggedIn ? (
               <Link to='/services' className='px-2 py-[7px] md:px-3 md:py-2 border rounded-lg lg:hidden border-gray-100 text-sm hover:text-red-700 transition-colors duration-300 hover:bg-white'>View Services</Link>
             ) : (
@@ -167,6 +165,7 @@ const Header = () => {
             )}
           </div>
 
+          {/* Desktop buttons for logged in and guest users */}
           <div className='hidden lg:flex items-center'>
             {isLoggedIn ? (
               <Link to='/services' className='px-3 py-2 border rounded-lg text-md font-semibold hover:text-red-700 transition-colors duration-300 hover:bg-white'>View Our Services</Link>
@@ -184,6 +183,7 @@ const Header = () => {
             )}
           </div>
 
+          {/* Logo */}
           <NavLink to="/" className="flex items-center ml-3">
             <img 
               src={require('../assets/auto-chef-logo.png')} 

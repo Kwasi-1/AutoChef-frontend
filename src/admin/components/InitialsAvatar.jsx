@@ -11,7 +11,7 @@ const getRandomColor = () => {
     'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500',
   ];
   const textColors = [
-    'text-white', 'text-black', 'text-gray-200', 'text-gray-500',
+    'text-white', 'text-black', 'text-gray-200', 'text-gray-100',
   ];
   const bgColor = colors[Math.floor(Math.random() * colors.length)];
   const textColor = textColors[Math.floor(Math.random() * textColors.length)];

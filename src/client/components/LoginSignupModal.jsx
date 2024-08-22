@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useReducer, useContext, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useReducer, useContext } from 'react';
 import Modal from 'react-modal';
 import { FaEnvelope, FaUser } from 'react-icons/fa';
 import { MdOutlineVpnKey } from 'react-icons/md';
@@ -112,10 +112,16 @@ const LoginSignupModal = ({ isOpen, onClose, initialAction }) => {
         payload.lastName = sanitizeInput(state.lastname);
       }
 
+      // const url =
+      //   action === 'Sign In'
+      //     ? 'http://localhost:8080/api/auth'
+      //     : 'http://localhost:8080/api/users';
+
+      //template literal used
       const url =
         action === 'Sign In'
-          ? 'http://localhost:8080/api/auth'
-          : 'http://localhost:8080/api/users';
+          ? `${process.env.REACT_APP_BACKEND_URL}/api/auth`
+          : `${process.env.REACT_APP_BACKEND_URL}/api/users`;
 
       try {
         const response = await fetch(url, {
@@ -173,15 +179,6 @@ const LoginSignupModal = ({ isOpen, onClose, initialAction }) => {
       document.body.style.overflow = '';
     };
   }, [isOpen]);
-
-  // Error boundary handling (component-level fallback)
-  if (!state || !setIsLoggedIn) {
-    return (
-      <div className="text-center text-red-500">
-        An unexpected error occurred. Please refresh the page or try again later.
-      </div>
-    );
-  }
 
   return (
     <Modal

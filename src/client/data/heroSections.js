@@ -30,12 +30,12 @@ const heroSections = [
     title: 'Contact Us',
     description: 'Get in touch with us for any queries or to schedule an appointment.',
   },
-  {
-    page: '/booking',
-    backgroundImage: require('../assets/Hero-bg-Image.png'),
-    title: 'Book an Appointment',
-    description: 'Schedule your appointment with our expert team today.',
-  },
+  // {
+  //   page: '/booking',
+  //   backgroundImage: require('../assets/Hero-bg-Image.png'),
+  //   title: 'Book an Appointment',
+  //   description: 'Schedule your appointment with our expert team today.',
+  // },
   {
     page: '/reviews',
     backgroundImage: require('../assets/Hero-bg-Image.png'),

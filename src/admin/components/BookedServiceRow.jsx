@@ -1,12 +1,13 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useContext } from 'react';
 import StatusBadge from './StatusBadge';
 import { Icon } from '@iconify/react';
 import { useLocation } from 'react-router-dom';
+import { BookingContext } from '../../client/context/BookingContext';
 
 const BookedServiceRow = ({ service, onSelectService }) => {
-  const [currentStatus, setCurrentStatus] = useState(service.status || 'Requested');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { updateBookingStatus } = useContext(BookingContext);
 
   const location = useLocation();
   const isBookedServices = location.pathname === '/admin/booked-services';
@@ -20,9 +21,8 @@ const BookedServiceRow = ({ service, onSelectService }) => {
   // Handles action click inside the dropdown
   const handleActionClick = (event, action) => {
     event.stopPropagation(); // Prevent triggering other click events
-    setCurrentStatus(action);
+    updateBookingStatus(service.invoiceNumber, action);
     setIsDropdownOpen(false);
-    console.log(`Action selected: ${action}`);
   };
 
   // Closes dropdown if clicked outside
@@ -42,7 +42,7 @@ const BookedServiceRow = ({ service, onSelectService }) => {
 
   // Memoizes available actions based on the current status
   const actions = useMemo(() => {
-    switch (currentStatus.toLowerCase()) {
+    switch (service.status.toLowerCase()) {
       case 'requested':
         return [{ label: 'Accept', action: 'Pending' }];
       case 'pending':
@@ -53,12 +53,12 @@ const BookedServiceRow = ({ service, onSelectService }) => {
       default:
         return [];
     }
-  }, [currentStatus]);
+  }, [service.status]);
 
   return (
     <tr 
       className="border-t hover:bg-gray-50 relative"
-      onClick={() => onSelectService(service)} // Trigger service selection on row click
+      onClick={() => isBookedServices && onSelectService(service)} // Trigger service selection on row click
     >
       {/* Invoice Number Column - Visible only on the booked services page */}
       {isBookedServices && (
@@ -86,7 +86,7 @@ const BookedServiceRow = ({ service, onSelectService }) => {
 
       {/* Status Column */}
       <td className="py-2 px-2 md:px-4 ml">
-        <StatusBadge status={currentStatus} />
+        <StatusBadge status={service.status} />
       </td>
 
       {/* Actions Column - Visible only on the booked services page */}
@@ -116,7 +116,7 @@ const BookedServiceRow = ({ service, onSelectService }) => {
               )}
             </>
           ) : (
-            <div className="inline-flex items-center justify-center text-gray-400">
+            <div className="inline-flex items-center justify-center text-gray-400 cursor-not-allowed">
               <Icon icon="solar:menu-dots-bold" className="w-5 h-5" />
             </div>
           )}

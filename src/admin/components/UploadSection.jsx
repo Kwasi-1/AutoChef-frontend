@@ -1,12 +1,13 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import React, { useState } from 'react';
-import galleryData from '../../client/data/gallery'; // Import your gallery data
+import galleryData from '../../client/data/gallery';
 
 const UploadSection = () => {
   const [files, setFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [error, setError] = useState('');
-  const [gallery, setGallery] = useState(galleryData); // State for gallery images
+  const [gallery, setGallery] = useState(galleryData);
+  const [uploadStatus, setUploadStatus] = useState({}); // State to track upload status
   const maxFileSizeMB = 5;
 
   // Handle file selection and validation
@@ -29,12 +30,16 @@ const UploadSection = () => {
     const newPreviewUrls = validFiles.map(file => URL.createObjectURL(file));
     setPreviewUrls([...previewUrls, ...newPreviewUrls]);
 
-    // Simulate uploading to the backend and getting new image URLs
+    // Initialize upload status as "Uploading"
     validFiles.forEach(file => {
+      setUploadStatus(prevStatus => ({ ...prevStatus, [file.name]: 'Uploading' }));
+
       uploadImage(file).then(newImageUrl => {
         setGallery([...gallery, { id: Date.now(), name: file.name, size: file.size, src: newImageUrl }]);
+        setUploadStatus(prevStatus => ({ ...prevStatus, [file.name]: 'Completed' })); // Set status to "Completed"
       }).catch(() => {
         setError('Error uploading image.');
+        setUploadStatus(prevStatus => ({ ...prevStatus, [file.name]: 'Failed' })); // Handle upload failure
       });
     });
   };
@@ -42,7 +47,6 @@ const UploadSection = () => {
   // Simulate image upload to a backend service
   const uploadImage = async (imageFile) => {
     // Replace this with actual upload logic, e.g., a POST request to a server
-    // Here we're just simulating with a local URL
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(URL.createObjectURL(imageFile));
@@ -52,8 +56,14 @@ const UploadSection = () => {
 
   // Handle file removal
   const handleFileRemove = (index) => {
+    const fileName = files[index].name;
     setFiles(files.filter((_, i) => i !== index));
     setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+    setUploadStatus(prevStatus => {
+      const newStatus = { ...prevStatus };
+      delete newStatus[fileName];
+      return newStatus;
+    });
   };
 
   return (
@@ -110,13 +120,16 @@ const UploadSection = () => {
       {files.length > 0 && (
         <div className="mt-4">
           <div className='mb-3'>Files</div>
-          <div className='flex gap-3'>
+          <div className='flex flex-col lg:flex-row gap-3 bg-red300 lg:max-w-[1000px] max-h-96 overflow-y-auto lg:overflow-x-auto'>
             {files.map((file, index) => (
-              <div key={index} className="relative w-full sm:w-64 py-2 px-3 mb-2 border-2 border-[#f0f0f1] text-[#6E7786] rounded-lg">
-                <div>{file.name}</div>
-                <div className='flex text-sm mt-1'>
-                  <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                  <span className='ml-2 text-[#08C352]'>Completed</span>
+              <div key={index} className="relative w-ful sm:w-64 max-h-[246px] py-2 px-3 mb-2 border-2 border-[#f0f0f1] text-[#6E7786] rounded-lg">
+                <div className='mr-8 truncate'>{file.name}</div>
+                <div className='flex items-center text-sm mt-1'>
+                  <span className='flex'>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                  <div className={`h-[0.45rem] w-[0.45rem] rounded-full ml-2 mt-1 ${uploadStatus[file.name] === 'Completed' ? 'bg-green-400' : 'bg-gray-500'}`}></div>
+                  <span className={`ml-1 ${uploadStatus[file.name] === 'Completed' ? 'text-green-500' : 'text-gray-500'}`}>
+                    {uploadStatus[file.name]}
+                  </span>
                 </div>
                 <Icon
                   icon='ic:round-close'

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+import ServiceDropdown from '../components/ServiceDropdown';
 
 const BookingForm = ({ isloggedIn }) => {
   // State to manage modal visibility and booking confirmation status
@@ -65,9 +66,71 @@ const BookingForm = ({ isloggedIn }) => {
     }
   };
 
+  // const [serviceIds, setServiceIds] = useState([]);
+  // const [selectedServiceId, setSelectedServiceId] = useState('');
+
+  // Fetch service IDs and set them in state
+  // useEffect(() => {
+  //   const fetchServiceIds = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:8080/api/services');
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       const services = await response.json();
+  //       setServiceIds(services.map(service => service._id));
+  //       // setSelectedServiceId(services.filter(service => service.name === formData.service)._id);
+  //       // console.log(selectedServiceId);
+  //     } catch (error) {
+  //       console.error('Error fetching service IDs:', error);
+  //     }
+  //   };
+
+  //   fetchServiceIds();
+  // });
+
   // Confirm booking and close the first modal
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async (event) => {
     setModalState({ isOpen: false, isBookingConfirmed: true });
+    event.preventDefault();
+
+    //const url = 'http://localhost:8080/api/booking';
+
+    // const url = "https://autochef-backend.onrender.com";
+
+    const url =`${process.env.REACT_APP_BACKEND_URL}/api/booking` //template literal
+
+    const payload = {
+      contact: formData.contactNumber,
+      service: formData.service,
+      vehicleInfo: formData.serviceInfo,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Parse the error response
+        console.error('Response status:', response.status);
+        console.error('Response status text:', response.statusText);
+        console.error('Error details:', errorData);
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      
+      console.log('Success:', data); 
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while processing your request. Please try again later.');
+    }
   };
 
   // Close the first modal
@@ -122,22 +185,10 @@ const BookingForm = ({ isloggedIn }) => {
           <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="service">
             Service
           </label>
-          <select
-            name="service"
-            value={formData.service}
-            onChange={handleInputChange}
-            className="appearance-none border border-gray-300 bg-gray-50 rounded w-full p-3 text-gray-700  leading-tight focus:outline-none focus:shadow-outline"
-            id="service"
-            required
-          >
-            <option value="">--Select Service--</option>
-            <option value="Automobile resprays">Automobile resprays</option>
-            <option value="Auto Electrical">Auto Electrical</option>
-            <option value="Car Detailing">Car Detailing</option>
-            <option value="Paint Correction">Paint Correction</option>
-            <option value="Body Works">Body Works</option>
-            <option value="Auto Mechanic">Auto Mechanic</option>
-          </select>
+          <ServiceDropdown 
+            formData={formData} 
+            handleInputChange={handleInputChange} 
+          />
         </div>
 
         <div className="flex-1">
@@ -161,7 +212,7 @@ const BookingForm = ({ isloggedIn }) => {
             isFormValid()
               ? 'hover:bg-red-600 text-red-700 bg-white hover:text-white border-red-300'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed border-gray-300'
-          } border px-5 py-2 rounded-lg w-full sm:w-auto`}
+          } border px-5 py-2 rounded-lg w-full`}
           disabled={!isFormValid()}
         >
           Confirm Booking

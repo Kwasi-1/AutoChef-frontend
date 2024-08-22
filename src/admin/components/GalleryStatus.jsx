@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArrowUpButton from './ArrowUpButton';
 import gallery from '../../client/data/gallery';
+import SkeletonLoader from './SkeletonLoader';
 
 const GalleryStatus = () => {
   const [galleryImages, setGalleryImages] = useState([]);
@@ -12,6 +13,23 @@ const GalleryStatus = () => {
   useEffect(() => {
     // Fetch gallery images and calculate their sizes
     const fetchGalleryImages = async () => {
+      
+    //   try {
+    //     const response = await fetch('https://api.example.com/gallery-images'); // Replace with your actual API endpoint
+    //     if (!response.ok) {
+    //       throw new Error(`Failed to fetch gallery images: ${response.statusText}`);
+    //     }
+
+    //     const data = await response.json();
+
+    //     const imagesWithSizes = await Promise.all(
+    //       data.map(async (image) => {
+    //         try {
+    //           const imageResponse = await fetch(image.url);
+    //           if (!imageResponse.ok) {
+    //             throw new Error(`Failed to load image: ${imageResponse.statusText}`);
+    //           }
+
       try {
         const imagesWithSizes = await Promise.all(
           gallery.map(async (image) => {
@@ -52,9 +70,7 @@ const GalleryStatus = () => {
     navigate('/admin/gallery'); // Navigate to the gallery admin page on button click
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Display loading message while images are being fetched
-  }
+  
 
   if (error) {
     return <div>Error: {error}</div>; // Display specific error message if fetching fails
@@ -69,23 +85,33 @@ const GalleryStatus = () => {
         <h2 className="font-semibold text-lg">Gallery</h2>
         <ArrowUpButton onClick={handleGalleryArrowClick} />
       </div>
-      <ul>
-        {recentImages.map((image, index) => (
-          <li key={index} className="flex items-center justify-between py-3 border-b">
-            <div className="flex items-center space-x-3">
-              <img
-                src={image.src}
-                alt={`Gallery image ${index + 1}`}
-                className="w-10 h-10 bg-gray-50 rounded-md"
-              />
-              <div>
-                <p className="font-semibold">Image {index + 1}</p>
-                <p className="text-sm text-gray-500">Size: {image.size} MB</p>
+      {loading ? (
+        <SkeletonLoader itemCount={4} layout="horizontal" type="gallery" />
+      ) : recentImages.length === 0 ? (
+        <div className="text-center justify-center items-center pt-16 text-gray-600">
+          No gallery images added.
+        </div>
+      ) : (
+        <ul>
+          {recentImages.map((image, index) => (
+            <li key={index} className="flex items-center justify-between py-3 border-b">
+              <div className="flex items-center space-x-3">
+                <img
+                  src={image.src}
+                  alt={`Gallery image ${index + 1}`}
+                  className="w-10 h-10 bg-gray-50 rounded-md"
+                  loading='lazy'
+                />
+                <div>
+                  <p className="font-semibold">Image {index + 1}</p>
+                  <p className="text-sm text-gray-500">Size: {image.size} MB</p>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+
     </div>
   );
 };

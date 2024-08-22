@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import Logo from '../assets/client_logo_black_white.png';
+import LogoutButton from '../../client/components/LogoutButton';
+import ResetPasswordButton from '../../client/components/ResetPasswordButton';
 
 // Sidebar component that displays navigation items
 const Sidebar = () => {
@@ -16,9 +18,9 @@ const Sidebar = () => {
   return (
     <div className="fixed w-16 sm:w-20 lg:w-72 h-screen p-2 sm:p-4 border-r border-[#E8E9ED]">
       {/* Logo section */}
-      <div className="flex items-center justify-center lg:justify-start mb-5">
+      <Link to='/admin' className="flex items-center justify-center lg:justify-start mb-5">
         <img src={Logo} alt="AutoChef Logo" className='w-[40px] lg:w-[95px] h-[40px] lg:h-[74px]' />
-      </div>
+      </Link>
 
       {/* Navigation menu */}
       <nav>
@@ -45,11 +47,16 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {/* Logout link positioned at the bottom of the sidebar */}
-      <Link to="/logout" className='absolute bottom-8 left-1/2 transform -translate-x-1/2 md:left-9 lg:transform-none flex items-center text-[#D90428]'>
-        <Icon icon="ic:round-logout" className="w-7 h-7" />
-        <span className='hidden lg:inline-block ml-2'>Logout</span>
-      </Link>
+      {/* Logout  and reset buttons positioned at the bottom of the sidebar */}
+      {/* <ResetPasswordButton
+        styleProp='absolute  bottom-20 left-1/2 transform -translate-x-1/2 md:left-9 lg:transform-none flex items-center'
+        iconProp ="w-6 h-6"
+      /> */}
+      <LogoutButton
+        styleProp='absolute bottom-8 left-1/2 transform -translate-x-1/2 md:left-9 lg:transform-none flex items-center text-[#D90428]'
+        iconProp ="w-7 h-7 mr-2"
+        textStyle={'hidden lg:inline-block'}
+      />
     </div>
   );
 };

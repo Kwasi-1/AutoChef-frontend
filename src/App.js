@@ -30,6 +30,7 @@ import { UserProvider } from "./client/context/UserContext";
 import EmailSignUp from "./client/components/EmailSignUp";
 import heroSections from "./client/data/heroSections";
 import HeroSection from "./client/components/HeroSection";
+import { BookingProvider } from "./client/context/BookingContext";
 
 Modal.setAppElement("#root");
 
@@ -37,12 +38,14 @@ function App() {
   return (
     <UserProvider>
       <ServiceProvider>
-        <Router>
-          <Routes>
-            <Route path="/admin/*" element={<AdminLayout />} />
-            <Route path="/*" element={<ClientLayout />} />
-          </Routes>
-        </Router>
+        <BookingProvider>
+          <Router>
+            <Routes>
+              <Route path="/admin/*" element={<AdminLayout />} />
+              <Route path="/*" element={<ClientLayout />} />
+            </Routes>
+          </Router>
+        </BookingProvider>
       </ServiceProvider>
     </UserProvider>
   );
@@ -69,6 +72,7 @@ const ClientLayout = () => {
   return (
     <div className="App">
       <Header />
+      {/* {JSON.stringify(process.env)} */}
       <CurrentHeroSection />
       <Routes>
         <Route exact path="/" element={<Home />} />

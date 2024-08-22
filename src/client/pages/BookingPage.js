@@ -2,7 +2,7 @@ import BookingForm from "../components/BookingForm";
 
 const BookingPage = () => {
   return (  
-    <div className="flex flex-col items-center justify-center min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-16 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

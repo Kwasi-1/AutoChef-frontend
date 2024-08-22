@@ -114,7 +114,7 @@ const ImageModal = ({ isOpen, image, onClose, onPrevious, onNext }) => {
           ref={imageRef}
           src={image} 
           alt="Selected item" 
-          className={`max-w-full h-full object-contain transition-transform duration-500 transform py-5 ${isLoading ? 'hidden' : ''}`}
+          className={`max-w-full lg:h-full object-contain transition-transform duration-500 transform py-5 ${isLoading ? 'hidden' : ''}`}
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image
           loading="lazy"
         />

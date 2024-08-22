@@ -32,7 +32,7 @@ const FeaturedGallery = () => {
       <div
         className={`w-full h-[6px] ${
           i === centerIndex ? 'bg-red-600' : 'bg-gray-200'
-        } m-7 transition-colors duration-500`}
+        } m-7 transition-colors duration-500 rounded`}
       ></div>
     ),
     dotsClass: 'slick-dots custom-dots', // Custom class for the navigation dots

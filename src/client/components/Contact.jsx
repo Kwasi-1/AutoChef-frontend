@@ -91,6 +91,7 @@ const Contact = () => {
           src={engineImage} 
           alt="Engine" 
           className="w-full lg:w-[600px] h-[300px] lg:h-[490px] object-cover rounded-lg" 
+          loading='lazy'
         />
       </div>
       
