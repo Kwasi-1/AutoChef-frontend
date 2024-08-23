@@ -81,7 +81,6 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     }
   };
 
-<<<<<<< HEAD
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -95,8 +94,6 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     };
   }, [isOpen]);
 
-=======
->>>>>>> be953f464a4b1131e5cf1377bf5affb235c93ab5
   const updateBookingStatus = async (invoiceNumber, newStatus) => {
     try {
       const response = await fetch(`/api/customers/${customerId}/bookings/${invoiceNumber}`, {
