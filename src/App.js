@@ -72,6 +72,7 @@ const ClientLayout = () => {
   return (
     <div className="App">
       <Header />
+      {/* {JSON.stringify(process.env)} */}
       <CurrentHeroSection />
       <Routes>
         <Route exact path="/" element={<Home />} />

@@ -56,25 +56,21 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     setIsRatingPopupOpen(false);
   };
 
-  // Define the handleCancel function
   const handleCancel = (invoiceNumber) => {
     if (window.confirm('Are you sure you want to cancel this booking?')) {
       updateBookingStatus(invoiceNumber, 'Cancelled');
     }
   };
 
-  // Define the handleDelete function
   const handleDelete = async (invoiceNumber) => {
     if (window.confirm('Are you sure you want to delete this booking?')) {
       try {
-        // API call to delete the booking for the logged-in user
         const response = await fetch(`/api/customers/${customerId}/bookings/${invoiceNumber}`, { method: 'DELETE' });
 
         if (!response.ok) {
           throw new Error('Failed to delete booking');
         }
 
-        // Update the local state by removing the deleted booking
         setBookings((prevBookings) =>
           prevBookings.filter((booking) => booking.invoiceNumber !== invoiceNumber)
         );
@@ -85,6 +81,7 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     }
   };
 
+<<<<<<< HEAD
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -98,6 +95,8 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     };
   }, [isOpen]);
 
+=======
+>>>>>>> be953f464a4b1131e5cf1377bf5affb235c93ab5
   const updateBookingStatus = async (invoiceNumber, newStatus) => {
     try {
       const response = await fetch(`/api/customers/${customerId}/bookings/${invoiceNumber}`, {

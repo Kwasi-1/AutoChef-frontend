@@ -8,11 +8,19 @@ const LogoutButton = ({styleProp, iconProp, textStyle}) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    // try {
+    //   const response = await fetch('http://localhost:8080/api/logout', {
+    //     method: 'POST',
+    //     credentials: 'include',  // Include cookies with the request
+    //   });
+
+    
     try {
-      const response = await fetch('http://localhost:8080/api/logout', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
         method: 'POST',
         credentials: 'include',  // Include cookies with the request
       });
+
 
       if (response.ok) {
         setIsLoggedIn(false);
