@@ -9,50 +9,41 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
   const [isRatingPopupOpen, setIsRatingPopupOpen] = useState(false);
   const [completedBooking, setCompletedBooking] = useState(null); // Track the booking that was completed
 
-  // Fetch bookings for the current user's customerId when the modal opens
-  // useEffect(() => {
-  //   const fetchBookings = async () => {
-  //     try {
-  //       if (!customerId) {
-  //         throw new Error('No customer ID provided');
-  //       }
-
-  //       // API call to fetch bookings for the logged-in user
-  //       const response = await fetch(`/api/customers/${customerId}/bookings`); // Replace with your actual API endpoint
-  //       if (!response.ok) {
-  //         throw new Error('Failed to fetch bookings');
-  //       }
-  //       const data = await response.json();
-  //       setBookings(data);
-  //     } catch (error) {
-  //       console.error('Error fetching bookings:', error);
-  //       alert('An error occurred while fetching bookings. Please try again later.');
-  //     }
-  //   };
-
-  //   if (isOpen && customerId) {
-  //     fetchBookings();
-  //   }
-  // }, [isOpen, customerId, setBookings]);
-
   useEffect(() => {
     const fetchBookings = async () => {
-      const data = [
-        { service: 'Full Body Spray', date: '19th August, 2024', status: 'Pending', invoiceNumber: 'INV001' },
-        { service: 'Full Body Spray', date: '19th August, 2024', status: 'Requested', invoiceNumber: 'INV002' },
-        { service: 'Full Body Spray', date: '18th August, 2024', status: 'Cancelled', invoiceNumber: 'INV003' },
-        { service: 'Full Body Spray', date: '17th August, 2024', status: 'Completed', invoiceNumber: 'INV004' },
-        { service: 'Full Body Spray', date: '16th August, 2024', status: 'Pending', invoiceNumber: 'INV005' },
-      ];
-      setBookings(data);
+      try {
+        // Fetch data from API
+        const response = await fetch(`/api/customers/${customerId}/bookings`);
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        setBookings(data);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+
+        // Fallback to hardcoded data if API fails
+        const fallbackData = [
+          { service: 'Full Body Spray', date: '19th August, 2024', status: 'Pending', invoiceNumber: 'INV001' },
+          { service: 'Full Body Spray', date: '19th August, 2024', status: 'Requested', invoiceNumber: 'INV002' },
+          { service: 'Full Body Spray', date: '18th August, 2024', status: 'Cancelled', invoiceNumber: 'INV003' },
+          { service: 'Full Body Spray', date: '17th August, 2024', status: 'Completed', invoiceNumber: 'INV004' },
+          { service: 'Full Body Spray', date: '16th August, 2024', status: 'Pending', invoiceNumber: 'INV005' },
+        ];
+        setBookings(fallbackData);
+      }
     };
 
-    fetchBookings();
-  }, [setBookings]);
+    if (isOpen && customerId) {
+      fetchBookings();
+    }
+  }, [isOpen, customerId, setBookings]);
 
   // Detect when a booking is marked as "Completed"
   useEffect(() => {
-    const completed = bookings.find(booking => booking.status === 'Completed');
+    const completed = bookings.find((booking) => booking.status === 'Completed');
     if (completed) {
       setCompletedBooking(completed);
       setIsRatingPopupOpen(true);
@@ -78,6 +69,7 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
       try {
         // API call to delete the booking for the logged-in user
         const response = await fetch(`/api/customers/${customerId}/bookings/${invoiceNumber}`, { method: 'DELETE' });
+
         if (!response.ok) {
           throw new Error('Failed to delete booking');
         }
@@ -93,10 +85,21 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
     }
   };
 
-  // Function to update the status of a booking via API call
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const updateBookingStatus = async (invoiceNumber, newStatus) => {
     try {
-      // API call to update the booking status for the logged-in user
       const response = await fetch(`/api/customers/${customerId}/bookings/${invoiceNumber}`, {
         method: 'PUT',
         headers: {
@@ -109,7 +112,6 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
         throw new Error('Failed to update booking status');
       }
 
-      // Update the local state with the new status
       setBookings((prevBookings) =>
         prevBookings.map((booking) =>
           booking.invoiceNumber === invoiceNumber ? { ...booking, status: newStatus } : booking
@@ -167,10 +169,10 @@ const BookingHistoryModal = ({ isOpen, onClose, customerId }) => {
                         : 'hover:bg-[#d04343] active:bg-[#DE0000] hover:text-white active:text-white'
                     }`}
                     disabled={booking.status === 'Pending'}
-                    onClick={() => 
-                      booking.status === 'Requested' 
-                      ? handleCancel(booking.invoiceNumber) 
-                      : handleDelete(booking.invoiceNumber)
+                    onClick={() =>
+                      booking.status === 'Requested'
+                        ? handleCancel(booking.invoiceNumber)
+                        : handleDelete(booking.invoiceNumber)
                     }
                   >
                     {booking.status === 'Requested' ? 'Cancel' : 'Delete'}

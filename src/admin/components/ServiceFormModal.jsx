@@ -3,11 +3,11 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 import Modal from 'react-modal';
 
 const ServiceFormModal = ({ isOpen, onClose, onSaveService, editingService }) => {
-  // Initialize service state with default values or editingService values if provided
+  // Initialize service state with default or editingService values
   const [service, setService] = useState({
     title: '',
     description: '',
-    features: ['', '', ''],
+    features: ['', '', ''], // Assume 3 features initially
   });
 
   // Update service state when editingService changes
@@ -21,6 +21,19 @@ const ServiceFormModal = ({ isOpen, onClose, onSaveService, editingService }) =>
     }
   }, [editingService]);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Handle input changes for both service details and features
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,12 +41,13 @@ const ServiceFormModal = ({ isOpen, onClose, onSaveService, editingService }) =>
     if (name.startsWith('feature')) {
       // Update the corresponding feature based on index
       const index = parseInt(name.replace('feature', '')) - 1;
-      const updatedFeatures = [...service.features];
-      updatedFeatures[index] = value;
-      setService({ ...service, features: updatedFeatures });
+      setService(prevService => {
+        const updatedFeatures = [...prevService.features];
+        updatedFeatures[index] = value;
+        return { ...prevService, features: updatedFeatures };
+      });
     } else {
-      // Update title or description
-      setService({ ...service, [name]: value });
+      setService(prevService => ({ ...prevService, [name]: value }));
     }
   };
 
@@ -42,8 +56,10 @@ const ServiceFormModal = ({ isOpen, onClose, onSaveService, editingService }) =>
     e.preventDefault();
 
     // Validate that features are unique and not empty
-    const featureSet = new Set(service.features.filter(f => f.trim() !== ''));
-    if (featureSet.size < service.features.length) {
+    const nonEmptyFeatures = service.features.filter(f => f.trim() !== '');
+    const featureSet = new Set(nonEmptyFeatures);
+
+    if (featureSet.size < nonEmptyFeatures.length) {
       alert("Features must be unique and not empty.");
       return;
     }
@@ -52,7 +68,7 @@ const ServiceFormModal = ({ isOpen, onClose, onSaveService, editingService }) =>
     const updatedService = {
       title: service.title,
       description: service.description,
-      points: service.features.map(feature => ({ title: feature })), // Convert features back to points
+      points: nonEmptyFeatures.map(feature => ({ title: feature })), // Convert features back to points
     };
 
     // Save the service and close the modal
