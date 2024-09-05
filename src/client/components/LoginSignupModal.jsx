@@ -85,9 +85,11 @@ const LoginSignupModal = ({ isOpen, onClose, initialAction }) => {
 
     if (!state.password) {
       newErrors.password = 'Password is required';
-    } else if (state.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+    } else if (state.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if(state.password.length > 24) {
+      newErrors.password = 'Password must be at most 24 characters';
+    } 
 
     if (action === 'Sign Up') {
       if (!state.firstname) {
@@ -263,7 +265,7 @@ const LoginSignupModal = ({ isOpen, onClose, initialAction }) => {
           )}
           <button
             type="submit"
-            className="bg-red-600 hover:bg-[#c32222] active:bg-red-700 text-white w-full py-2 rounded-lg my-6"
+            className={`bg-red-600 hover:bg-[#c32222] active:bg-red-700 text-white w-full py-2 rounded-lg ${action === 'Sign In' ? 'my-6' : 'my-1'}`}
           >
             {action}
           </button>

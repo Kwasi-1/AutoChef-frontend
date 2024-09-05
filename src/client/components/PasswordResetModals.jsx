@@ -31,15 +31,29 @@ const InputField = ({ label, type, icon, value, onChange, error, placeholder, Pa
 const PasswordResetModals = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [code, setCode] = useState(Array(6).fill(''));
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const { setIsLoggedIn } = useContext(UserContext);
 
+  const validateEmail = (email) => {
+    // Simple email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSendCode = () => {
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
     // Logic to send the verification code to the email
+    setEmailError('');
     setStep(2);
   };
 
@@ -91,10 +105,20 @@ const PasswordResetModals = ({ isOpen, onClose }) => {
   };
 
   const handleResetPassword = () => {
+    if (newPassword.length < 8) {
+      setNewPasswordError('Password must be at least 8 characters long');
+      return;
+    } else if (newPassword.length > 24) {
+      setNewPasswordError('Password must be at most 24 characters long');
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
+
+    setNewPasswordError('');
 
     // Logic to reset the password
     setIsLoggedIn(true);
@@ -132,6 +156,7 @@ const PasswordResetModals = ({ isOpen, onClose }) => {
             icon="heroicons:envelope"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            error={emailError}
             placeholder="onlyspeedstar@gmail.com"
           />
           <button
@@ -184,6 +209,7 @@ const PasswordResetModals = ({ isOpen, onClose }) => {
             onChange={(e) => setNewPassword(e.target.value)}
             togglePassword={() => setIsPasswordVisible(!isPasswordVisible)}
             PasswordMarginBottom={true}
+            error={newPasswordError}
           />
           <InputField
             label="Confirm Password"
