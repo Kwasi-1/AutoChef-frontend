@@ -9,32 +9,11 @@ const defaultService = {
   icon: 'mdi:alert-circle-outline',
 };
 
-const placeholderData = [
-  {
-    title: "Car Detailing",
-    description: "Full interior and exterior car detailing to make your vehicle look like new.",
-    points: ["Exterior wash", "Interior vacuum", "Polishing", "Waxing"],
-    path: "car-detailing"
-  },
-  {
-    title: "Auto Repair",
-    description: "Comprehensive auto repair services for all vehicle types.",
-    points: ["Engine diagnostics", "Brake replacement", "Transmission service", "Suspension work"],
-    path: "auto-repair"
-  },
-  {
-    title: "Oil Change",
-    description: "Quick and affordable oil change services to keep your engine running smoothly.",
-    points: ["Synthetic oil", "Filter replacement", "Fluid top-up", "Multi-point inspection"],
-    path: "oil-change"
-  }
-];
-
 const ServicesPage = () => {
   // State for storing services data, loading status, and error messages
   const [services, setServices] = useState(() => {
-    const cachedServices = localStorage.getItem('services');
-    return cachedServices ? JSON.parse(cachedServices) : placeholderData;
+    const cachedServices = localStorage.getItem('services'); // Retrieve cached services if available
+    return cachedServices ? JSON.parse(cachedServices) : []; // Use cached data if available
   });
   const [loading, setLoading] = useState(!services.length); // Show loading if no cached data
   const [error, setError] = useState(null);
@@ -49,17 +28,20 @@ const ServicesPage = () => {
           throw new Error(`Failed to fetch services: ${response.statusText}`);
         }
         const data = await response.json();
-        setServices(data);
+        setServices(data); // Update state with the fetched data
         localStorage.setItem('services', JSON.stringify(data)); // Cache data in localStorage
       } catch (error) {
         if (retryCount > 0) {
           console.warn(`Retrying fetch services, attempts left: ${retryCount}`);
           fetchServices(retryCount - 1); // Retry the fetch request
         } else {
-          setError(error.message);
+          console.error('Failed to fetch services after retries:', error);
+          // Report the failure (e.g., send error data to a logging service)
+          reportApiError(error);
+          setError(error.message); // Set error state after retries
         }
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading once fetch attempt is complete
       }
     };
 
@@ -68,6 +50,12 @@ const ServicesPage = () => {
       fetchServices();
     }
   }, [services.length]);
+
+  // Function to report API errors (can be replaced with an actual logging service)
+  const reportApiError = (error) => {
+    console.log('Reporting API failure:', error);
+    // Example: You can integrate services like Sentry or log errors to a server
+  };
 
   useEffect(() => {
     // Scroll to the section if a hash is present in the URL
