@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import serviceData from '../data/serviceData';
+import staticServiceData from '../data/staticServiceData';
 import locationIcon from '../assets/location.png';
 import emailIcon from '../assets/email.png';
 import phoneIcon from '../assets/phone.png';
@@ -12,7 +12,7 @@ import MenuItems from './MenuItems';
 // Footer component displays the footer section of the website
 const Footer = () => {
   // Memoize service data to prevent re-rendering unless the data changes
-  const services = useMemo(() => serviceData, []);
+  const services = useMemo(() => staticServiceData, []);
 
   return (
     <>

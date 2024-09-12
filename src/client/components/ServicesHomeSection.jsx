@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import serviceData from '../data/serviceData';
+import staticServiceData from '../data/staticServiceData';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
 const ServicesHomeSection = ({ image }) => {
@@ -10,11 +10,11 @@ const ServicesHomeSection = ({ image }) => {
           We Are Specialists In Following Services
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:p-16">
-          {serviceData.map((service) => (
+          {staticServiceData.map((service) => (
             <Link
               to={`/services#${service.path}`}
               key={service.title}
-              className="relative hover:outline outline-red-60 bg-white p-6 rounded-xl border hover:border-none border-gray-300 overflow-hidden  hover:scale-[1.01] md:hover:scale-[1.03] transition duration-300"
+              className="relative hover:outline outline-red-60 bg-white p-6 rounded-xl border border-gray-300 overflow-hidden  hover:scale-[1.01] md:hover:scale-[1.03] transition duration-300"
             >
               {/* Content */}
               <div className="relative z-10">

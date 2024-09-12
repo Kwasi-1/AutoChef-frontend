@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import serviceData from '../../client/data/serviceData'; // Ensure this path is correct
+import staticServiceData from '../../client/data/staticServiceData'; // Ensure this path is correct
 
 const FilterSection = ({ onFilterChange }) => {
   const handleFilterChange = (e) => {
@@ -10,7 +10,7 @@ const FilterSection = ({ onFilterChange }) => {
   // Memoize the service options to avoid re-computation on every render
   const serviceOptions = useMemo(
     () =>
-      serviceData.map((service) => (
+      staticServiceData.map((service) => (
         <option key={service.id} value={service.title}>
           {service.title}
         </option>

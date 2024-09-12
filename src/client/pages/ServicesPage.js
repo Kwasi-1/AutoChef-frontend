@@ -1,12 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ServicesSection from '../components/ServiceSection';
+import staticServiceData from '../data/staticServiceData';
+
+// Default image and icon for unmatched services
+const defaultService = {
+  image: require('../assets/DetailingBg.jpg'),
+  icon: 'mdi:alert-circle-outline',
+};
+
+const placeholderData = [
+  {
+    title: "Car Detailing",
+    description: "Full interior and exterior car detailing to make your vehicle look like new.",
+    points: ["Exterior wash", "Interior vacuum", "Polishing", "Waxing"],
+    path: "car-detailing"
+  },
+  {
+    title: "Auto Repair",
+    description: "Comprehensive auto repair services for all vehicle types.",
+    points: ["Engine diagnostics", "Brake replacement", "Transmission service", "Suspension work"],
+    path: "auto-repair"
+  },
+  {
+    title: "Oil Change",
+    description: "Quick and affordable oil change services to keep your engine running smoothly.",
+    points: ["Synthetic oil", "Filter replacement", "Fluid top-up", "Multi-point inspection"],
+    path: "oil-change"
+  }
+];
 
 const ServicesPage = () => {
   // State for storing services data, loading status, and error messages
   const [services, setServices] = useState(() => {
     const cachedServices = localStorage.getItem('services');
-    return cachedServices ? JSON.parse(cachedServices) : [];
+    return cachedServices ? JSON.parse(cachedServices) : placeholderData;
   });
   const [loading, setLoading] = useState(!services.length); // Show loading if no cached data
   const [error, setError] = useState(null);
@@ -70,18 +98,29 @@ const ServicesPage = () => {
       <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center p-2 sm:p-4 md:p-6 lg:p-8 font-semibold items-center">
         Our Services
       </h2>
-      {services.map((section, index) => (
-        <ServicesSection
-          key={index}
-          id={section.path} // Use path as section ID for scroll linking
-          title={section.title} // Service title
-          description={section.description} // Service description
-          points={section.points} // List of merged points (title + text)
-          image={section.image} // Background image for the section
-          icon={section.icon} // Icon representing the service
-          alignRight={index % 2 === 0} // Alternating alignment
-        />
-      ))}
+      {services.map((section, index) => {
+        // Find matching static service
+        const matchedService = staticServiceData.find(
+          (staticService) => staticService.title === section.title
+        );
+
+        // Use matched service's image and icon, or default if no match
+        const image = matchedService ? matchedService.image : defaultService.image;
+        const icon = matchedService ? matchedService.icon : defaultService.icon;
+
+        return (
+          <ServicesSection
+            key={index}
+            id={section.path} // Use path as section ID for scroll linking
+            title={section.title} // Service title
+            description={section.description} // Service description
+            points={section.points} // List of merged points (title + text)
+            image={image} // Background image for the section
+            icon={icon} // Icon representing the service
+            alignRight={index % 2 === 0} // Alternating alignment
+          />
+        );
+      })}
     </div>
   );
 };
